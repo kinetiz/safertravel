@@ -26,7 +26,7 @@ SECRET_KEY = '185dde09-d20c-49c3-8681-1d6db7ea5227'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['safertravel.azurewebsites.net', 'auu.azurewebsites.net']
+ALLOWED_HOSTS = []
 
 
 # Application definition
