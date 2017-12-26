@@ -74,10 +74,13 @@
     <Content Include="app\static\app\scripts\moment.js" />
     <Content Include="app\static\app\scripts\moment.min.js" />
     <Content Include="app\static\app\scripts\typeahead.jquery.min.js" />
+    <Content Include="app\static\web.config" />
     <Content Include="app\templates\app\airbnb.csv" />
     <Content Include="app\templates\app\prediction - Copy.html" />
     <Content Include="crimeProbPredictor.pkl" />
     <Content Include="janscaler.pkl" />
+    <Content Include="web.config" />
+    <None Include="pythonapi20171226102338 - Web Deploy.pubxml" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
     <Content Include="app\static\app\content\bootstrap.css" />
