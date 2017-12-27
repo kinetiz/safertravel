@@ -21,7 +21,7 @@ def home(request):
         request,
         'app/index.html',
         {
-            'title':'Home Page',
+            'title':'Crime Analysis',
             'year':datetime.now().year,
         }
     )
@@ -34,7 +34,6 @@ def prediction(request):
         'app/prediction.html',
         {
             'title':'Crime Prediction',
-            'message':'Your contact page.',
             'year':datetime.now().year,
         }
     )
