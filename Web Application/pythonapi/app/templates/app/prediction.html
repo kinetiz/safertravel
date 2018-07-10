@@ -1,0 +1,793 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+    <style>
+        .c3-region.regionX {
+          fill: yellowgreen;
+        }
+        .c3-axis-y .tick {
+            font-size: 14px;
+            font-family: Calibri;
+        }
+        .c3-axis-y-label {
+            font-size: 14px;
+            font-family: Calibri;
+            font-weight: bold;
+        }
+        .c3-axis-x .tick {
+            font-size: 12px;
+            font-family: Calibri;
+        }
+        .c3-axis-x-label {
+            font-size: 14px;
+            font-family: Calibri;
+        }
+        .c3-ygrid-line line{
+        }
+        .c3-ygrid-line text {
+            font-size: 14px;
+            font-family: Calibri;
+        }
+        .c3-xgrid-line.recommend line {
+            stroke: #5cb85c;
+            width: 20px;
+        }
+        .c3-xgrid-line.recommend text {
+            font-size: 14px;
+            font-family: Calibri;
+            fill: #5cb85c;
+            font-weight: bold;
+        }
+        body {
+            font-size: 16px;
+            font-family: Calibri;
+            fill: #695a5a;
+        }
+
+    </style>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-5">
+            <div class="row" style="padding-bottom: 5px;">
+                <div class="col-md-2">
+                    <label style="line-height: 30px">RoomType:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="select-roomtype" style="max-width:100%;">
+                        <option value="0">All</option>
+                        <option value="1">Entire home/apt</option>
+                        <option value="2">Private room</option>
+                        <option value="3">Shared room</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label style="line-height: 30px">Community:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="select-neighbor" style="max-width:100%;">
+                        <option>All</option>
+                        <option>Lincoln Square</option>
+                        <option>Hyde Park</option>
+                        <option>Woodlawn</option>
+                        <option>Rogers Park</option>
+                        <option>Jefferson Park</option>
+                        <option>Forest Glen</option>
+                        <option>North Park</option>
+                        <option>Albany Park</option>
+                        <option>Dunning</option>
+                        <option>West Ridge</option>
+                        <option>Logan Square</option>
+                        <option>West Town</option>
+                        <option>Austin</option>
+                        <option>Near West Side</option>
+                        <option>Uptown</option>
+                        <option>Near South Side</option>
+                        <option>Norwood Park</option>
+                        <option>Near North Side</option>
+                        <option>Loop</option>
+                        <option>South Shore</option>
+                        <option>South Chicago</option>
+                        <option>South Deering</option>
+                        <option>West Pullman</option>
+                        <option>Hegewisch</option>
+                        <option>Garfield Ridge</option>
+                        <option>Fuller Park</option>
+                        <option>Lake View</option>
+                        <option>Montclare</option>
+                        <option>Clearing</option>
+                        <option>Greater Grand Crossing</option>
+                        <option>Lincoln Park</option>
+                        <option>Ashburn</option>
+                        <option>Mount Greenwood</option>
+                        <option>Ohare</option>
+                        <option>Edgewater</option>
+                        <option>Douglas</option>
+                        <option>Oakland</option>
+                        <option>Grand Boulevard</option>
+                        <option>Archer Heights</option>
+                        <option>Kenwood</option>
+                        <option>Washington Park</option>
+                        <option>Portage Park</option>
+                        <option>Irving Park</option>
+                        <option>Belmont Cragin</option>
+                        <option>Hermosa</option>
+                        <option>Avondale</option>
+                        <option>Humboldt Park</option>
+                        <option>West Garfield Park</option>
+                        <option>East Garfield Park</option>
+                        <option>North Lawndale</option>
+                        <option>South Lawndale</option>
+                        <option>Lower West Side</option>
+                        <option>Armour Square</option>
+                        <option>Chatham</option>
+                        <option>Calumet Heights</option>
+                        <option>Roseland</option>
+                        <option>North Center</option>
+                        <option>Pullman</option>
+                        <option>Brighton Park</option>
+                        <option>Mckinley Park</option>
+                        <option>Bridgeport</option>
+                        <option>New City</option>
+                        <option>West Elsdon</option>
+                        <option>West Lawn</option>
+                        <option>Chicago Lawn</option>
+                        <option>West Englewood</option>
+                        <option>Englewood</option>
+                        <option>Auburn Gresham</option>
+                        <option>Beverly</option>
+                        <option>Washington Heights</option>
+                        <option>Morgan Park</option>
+                        <option>Edison Park</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7" style="padding-left:30px">
+            <label>Date:</label>
+            <input type="text" id="travel-daterange" name="daterange" class="form-control" style="display:inline;">
+            <span id="canlendar-icon" class="glyphicon glyphicon-calendar"></span>
+            <label class="form-check-label" style="padding-left:15px">
+                <input id="compare-checkbox"type="checkbox" class="form-check-input">
+                Compare Location
+            </label>
+            <button id="recommend-alert" type="button" class="btn btn-primary pull-right">
+              <span class="glyphicon glyphicon-thumbs-up"></span> <span class="glyphicon glyphicon-calendar"></span>
+                <span id="recommendedDate" class="badge badge-light"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div id="map"></div>
+        </div>
+        <div class="col-md-7">
+            <div class="row">
+                <div class="col-md-10">
+                    <div id="crime-line-chart"></div>
+                </div>
+                <div class="col-md-2" style="font-size: 12px;">
+                            <div class="row">
+                                <label class="form-check-label">
+                                    <input id="person-related"type="checkbox" class="form-check-input" checked="checked">
+                                    Person_Related
+                                </label>
+                            </div>
+                            <div class="row">
+                                <label class="form-check-label">
+                                    <input id="property-related"type="checkbox" class="form-check-input">
+                                    Property_Related
+                                </label>
+                            </div>
+                            <div class="row">
+                                <label class="form-check-label">
+                                    <input id="drug-related"type="checkbox" class="form-check-input">
+                                    Drug_Related
+                                </label>
+                            </div>
+                            <div class="row">
+                                <label class="form-check-label">
+                                    <input id="weapon-related"type="checkbox" class="form-check-input">
+                                    Weapon_Related
+                                </label>
+                            </div>
+                            <div class="row">
+                                <label class="form-check-label">
+                                    <input id="sexual-exploitation"type="checkbox" class="form-check-input">
+                                    Sexual_Exploit
+                                </label>
+                            </div>
+                            <div class="row">
+                                <label class="form-check-label">
+                                    <input id="other-offense"type="checkbox" class="form-check-input">
+                                    Other_Offense
+                                </label>
+                            </div>
+                            <div class="row">
+                                <label class="form-check-label" >
+                                    <input id="average"type="checkbox" class="form-check-input">
+                                    Average
+                                </label>
+                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    <!------------------------Script Start-------------------------->
+    
+    <script>
+        //Threshold list
+        var crimeThreshold = {  Person_Related: 16.85,
+                                Property_Related:66.05,
+                                Drug_Related:5.97,
+                                Weapon_Related:0.48,
+                                Sexual_Exploitation:0.72,
+                                Other_Offense:9.6,
+                                Average: 16.61
+        };
+
+        // Default Location
+        var lat = 41.850033;
+        var long = -87.6500523;
+        var roomtype = 'All';
+        var neighbor = 'All';
+        var markersArray = [];
+        var minDate;
+        var linecount = 0;
+        var comparemode = 0;
+        var linedata = [];
+        var tempcount = 1;
+        var map = [];
+        
+
+        //**************Setup****************
+        $(document).ready(function () {
+            //Setup Daterangepicker
+            $('input[name="daterange"]').daterangepicker(
+                {
+                    //"ranges": {
+                    //    'Today': [moment(), moment()]
+                    //},
+                    "startDate": moment(),//moment().subtract(6, 'days'),
+                    "endDate": moment().add(7, 'days'),
+                    locale: {
+                        format: 'DD/MM/YYYY'
+                    },
+
+                }
+            );
+
+            $('#travel-daterange').change(function () {
+                if (comparemode == 1) {
+                    clearChart();
+                    clearOverlays();
+                    alert("Please select location again...");
+                }
+                else
+                {
+                    updateChart();
+                }
+                refreshThreshold();
+            });
+            $('#select-roomtype').change(function () {
+                roomtype = $('#select-roomtype option:selected').text();
+                initFusionMap();
+            });
+            $('#select-neighbor').change(function () {
+                neighbor = $('#select-neighbor option:selected').text();
+                initFusionMap();
+            });
+            $('#compare-checkbox').change(function () {
+                if (this.checked) {
+                    comparemode = 1;
+                    $('#recommend-alert').hide();
+                }
+                else {
+                    comparemode = 0;
+                    $('#recommend-alert').show();
+                }
+            });
+            //Threshold checkbox
+            $('#person-related').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Person_Related
+                        , text: 'PERSON_RELATED THRESHOLD'
+                        , class: 'person_related'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'person_related'});
+                }
+            });
+            $('#property-related').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Property_Related
+                        , text: 'PROPERTY_RELATED THRESHOLD'
+                        , class: 'property_related'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'property_related'});
+                }
+            });
+            $('#drug-related').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Drug_Related
+                        , text: 'DRUG_RELATED THRESHOLD'
+                        , class: 'drug_related'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'drug_related'});
+                }
+            });
+            $('#weapon-related').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Weapon_Related
+                        , text: 'WEAPON_RELATED THRESHOLD'
+                        , class: 'weapon_related'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'weapon_related'});
+                }
+            });
+            $('#sexual-exploitation').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Sexual_Exploitation
+                        , text: 'SEXUAL_EXPLOITATION THRESHOLD'
+                        , class: 'sexual_exploitation'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'sexual_exploitation'});
+                }
+            });
+            $('#other-offense').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Other_Offense
+                        , text: 'OTHER_OFFENSE THRESHOLD'
+                        , class: 'other_offense'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'other_offense'});
+                }
+            });
+            $('#average').change(function () {
+                if (this.checked) {
+                    chart.ygrids.add({
+                          value: crimeThreshold.Average
+                        , text: 'AVERAGE THRESHOLD'
+                        , class: 'average'
+                    });
+                }
+                else {
+                    chart.ygrids.remove({ class:'average'});
+                }
+            });
+            
+        });
+
+        window.onload = function () {
+            updateChart();
+            pushMarker({ lat: lat, lng: long });
+            //initMap();
+        };
+
+        //**********Google map*********
+        function initFusionMap() {
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: lat, lng: long },
+                zoom: 10
+            });
+            var filter = ""
+            if (roomtype != 'All') {
+                filter = "room_type='" + roomtype + "'";
+            }
+
+            if (neighbor != 'All') {
+                if (filter != '')
+                    filter += 'and ';
+                filter += "neighbourhood='" + neighbor + "'";
+            }
+            var layer = new google.maps.FusionTablesLayer({
+                query: {
+                    select: 'latitude',
+                    from: '1i7WnQUcLkDOBrgMmmTKHIT1Qx8A3-li-JB3BG2Hh',
+                    where: filter
+                },
+                options: { suppressInfoWindows: true },
+                styles: [
+                    {
+                        where: 'price_per_night <= 50',
+                        markerOptions: {
+                            iconName: "small_green"
+                        }
+                    },
+                    {
+                        where: 'price_per_night > 50 and price_per_night <= 100',
+                        markerOptions: {
+                            iconName: "small_yellow"
+                        }
+                    },
+                    {
+                        where: 'price_per_night > 100',
+                        markerOptions: {
+                            iconName: "small_red"
+                        }
+                    }
+
+                ]
+
+            });
+            layer.setMap(map);
+            
+            google.maps.event.addListener(layer, 'click', function (e) {
+                lat = parseFloat(e.row['latitude'].value);
+                long = parseFloat(e.row['longitude'].value);
+                name = e.row['name'].value;
+                updateChart(name);
+                if (comparemode == 1) {
+                    if (tempcount != 2) {
+                        clearOverlays();
+                        tempcount = 1;
+                    }
+                    var marker = new google.maps.Marker({
+                        position: e.latLng,
+                        map: map
+                    });
+
+                    markersArray.push(marker);
+                    var infowindow = new google.maps.InfoWindow({
+                        content: "<b><u>Location" + tempcount + "</u></b>"
+                        + "<br> <b>Community Area:</b>" + e.row['neighbourhood'].value
+                        + "<br> <b>Name:</b>" + e.row['name'].value
+                        + "<br> <b>Room type:</b>" + e.row['room_type'].value
+                        + "<br> <b>Price/night:</b>" + e.row['price_per_night'].value
+                        + "<br> <b>Minimum nights:</b>" + e.row['minimum_nights'].value
+                        + "<br> <b>Number of reviews:</b>" + e.row['number_of_reviews'].value
+                        + "<br> <b>Reviews:</b>" + e.row['reviews_per_month'].value
+
+                    });
+                    infowindow.open(map, marker);
+                    tempcount++;
+                }
+                else {
+                    clearOverlays();
+                    var marker = new google.maps.Marker({
+                        position: e.latLng,
+                        map: map
+                    });
+
+                    markersArray.push(marker);
+                    var infowindow = new google.maps.InfoWindow({
+                        content: "<br> <b>Community Area:</b>" + e.row['neighbourhood'].value
+                        + "<br> <b> Name:</b>" + e.row['name'].value
+                        + "<br> <b>Room type:</b>" + e.row['room_type'].value
+                        + "<br> <b>Price/night:</b>" + e.row['price_per_night'].value
+                        + "<br> <b>Minimum nights:</b>" + e.row['minimum_nights'].value
+                        + "<br> <b>Number of reviews:</b>" + e.row['number_of_reviews'].value
+                        + "<br> <b>Reviews:</b>" + e.row['reviews_per_month'].value
+                    });
+                    infowindow.open(map, marker);
+                }
+                refreshThreshold();
+            });
+        }
+        function pushMarker(location) {
+
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+
+            markersArray.push(marker);
+            var infowindow = new google.maps.InfoWindow({
+                content: "<b>Latitude:</b>" + location.lat
+                + "<br> <b>Longitude:</b>" + location.lng
+            });
+            infowindow.open(map, marker);
+        }
+        function clearOverlays() {
+            for (var i = 0; i < markersArray.length; i++) {
+                markersArray[i].setMap(null);
+            }
+            markersArray.length = 0;
+        }
+
+        //**********Chart************
+        // Initial Line Chart
+        var chart = c3.generate({
+            bindto: '#crime-line-chart',
+            size: {
+                height: 500
+            },
+            data: {
+                x: 'date',
+                //xFormat: '%Y-%m-%d',
+                json: [],
+                keys: {
+                    x: 'date',
+                    value: ['Person_Related', 'Property_Related', 'Drug_Related', 'Weapon_Related', 'Sexual_Exploitation', 'Other_Offense', 'Average']
+                }
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    },
+                    label: {
+                        text: '',
+                        position: 'outer-center'
+                        // inner-right : default
+                        // inner-center
+                        // inner-left
+                        // outer-right
+                        // outer-center
+                        // outer-left
+                    },
+                },
+                y: {
+                    // Range includes padding, set 0 if no padding needed
+                    padding: { top: 10, bottom: 10 },
+                    label: {
+                        text: 'Probability of Crime Occurance(%)',
+                        position: 'outer-center'
+                        // inner-right : default
+                        // inner-center
+                        // inner-left
+                        // outer-right
+                        // outer-center
+                        // outer-left
+                    },
+                    tick: {
+                        format: d3.format('.2f')
+                    }
+                }
+            },
+            zoom: {
+                enabled: true
+            },
+            color: {
+                pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+            }
+        });
+
+        // Clear chart
+        function clearChart() {
+            // Update data
+            //chart.load({ unload: true });
+            chart.xgrids.remove();
+            chart.ygrids.remove();
+            chart.axis.max(undefined);
+            chart.axis.min(undefined);
+        }
+
+        // Call Python - Prediction API and Update chart
+        function updateChart(name = '') {
+            //hide chart
+            chart.hide(['Property_Related', 'Drug_Related', 'Weapon_Related', 'Sexual_Exploitation', 'Other_Offense', 'Average'], {withLegend: false})
+            // Get Date from user input
+            var selectedDateFrom = $('#travel-daterange').data('daterangepicker').startDate._d;
+            var selectedDateTo = $('#travel-daterange').data('daterangepicker').endDate._d;
+
+            // Formatting date for python api request 
+            var DateFrom = selectedDateFrom.getFullYear() + "-" + (selectedDateFrom.getMonth() + 1) + "-" + selectedDateFrom.getDate();
+            var DateTo = selectedDateTo.getFullYear() + "-" + (selectedDateTo.getMonth() + 1) + "-" + selectedDateTo.getDate();
+        
+            var reqDateFrom = selectedDateFrom.subtractDays(10);
+            var reqDateTo = selectedDateTo.addDays(10);
+            reqDateFrom = reqDateFrom.getFullYear() + "-" + (reqDateFrom.getMonth() + 1) + "-" + reqDateFrom.getDate();
+            reqDateTo = reqDateTo.getFullYear() + "-" + (reqDateTo.getMonth() + 1) + "-" + reqDateTo.getDate();
+            
+            $.ajax({
+                url: "/predict",
+                type: "get", //HTTP method
+            
+                //**** Request Parameters
+                data: { 
+                    DateFrom: reqDateFrom, 
+                    DateTo: reqDateTo, 
+                    Lat: lat,
+                    Long: long
+                },
+
+                //**** Response
+                success: function(response) {                
+                    // Update data
+                    if (comparemode == 1) {
+
+                        if (linecount >= 2) {
+                            linedata = [];
+                            linecount = 0;
+                        }
+
+                        linecount++;
+                        if (linecount == 1) {
+                            response.forEach(function (element) {
+                                linedata = linedata.concat([{
+                                    'date': element["date"],
+                                    'Location1': element["Average"],
+                                    'Location2': 0
+                                }])
+                            });
+
+                            clearChart();
+                        }
+                        if (linecount == 2) {
+                            var i;
+                            for (i = 0; i < linedata.length; i++) {
+                                linedata[i]['Location2'] = response[i]["Average"];
+                            }
+                        }
+                        chart.load({
+                            json: linedata,
+                            keys: {
+                                x: 'date',
+                                value: ['Location1', 'Location2']
+                            },
+                            unload: true 
+                        });
+                        
+                        chart.regions([{ axis: 'x', start: DateFrom, end: DateTo, class: 'regionX' }]);
+
+                    }
+                    else {
+
+                        chart.load({
+                            json: response,
+                            keys: {
+                                x: 'date',
+                                value: ['Person_Related', 'Property_Related', 'Drug_Related', 'Weapon_Related', 'Sexual_Exploitation', 'Other_Offense', 'Average']
+                            },
+                            unload: true 
+                        });
+                        var min = 100;
+                        response.forEach(function (element) {
+                            if (element.Average < min) {
+                                min = element.Average;
+                                minDate = element.date;
+                            }
+                        });
+
+                        chart.regions([{ axis: 'x', start: DateFrom, end: DateTo, class: 'regionX' }]);
+                        chart.axis.max(100);
+                        chart.axis.min(100);
+                        chart.xgrids([
+                            { value: minDate, text: 'RECOMMENDED DATE..LOWEST RISK', class: 'recommend' }
+                        ]);
+                        document.getElementById("recommendedDate").innerHTML = minDate.toString();
+                    }
+                },
+            
+                //****Handle Error
+                error: function(xhr) {
+                //Do Something to handle error
+                    console.log("error")
+                    console.log(xhr)
+                }
+            });
+            refreshThreshold();
+        }
+        function refreshThreshold() {
+                //-- refresh threshold line
+            chart.ygrids.remove();
+            if ($('#person-related')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Person_Related
+                    , text: 'PERSON_RELATED THRESHOLD'
+                    , class: 'person_related'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'person_related'});
+            }
+                    
+            if ($('#property-related')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Property_Related
+                    , text: 'PROPERTY_RELATED THRESHOLD'
+                    , class: 'property_related'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'property_related'});
+            }
+            
+            if ($('#drug-related')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Drug_Related
+                    , text: 'DRUG_RELATED THRESHOLD'
+                    , class: 'drug_related'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'drug_related'});
+            }
+            
+            if ($('#weapon-related')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Weapon_Related
+                    , text: 'WEAPON_RELATED THRESHOLD'
+                    , class: 'weapon_related'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'weapon_related'});
+            }
+            
+            if ($('#sexual-exploitation')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Sexual_Exploitation
+                    , text: 'SEXUAL_EXPLOITATION THRESHOLD'
+                    , class: 'sexual_exploitation'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'sexual_exploitation'});
+            }
+            
+            if ($('#other-offense')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Other_Offense
+                    , text: 'OTHER_OFFENSE THRESHOLD'
+                    , class: 'other_offense'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'other_offense'});
+            }
+            
+            if ($('#average')[0].checked) {
+                chart.ygrids.add({
+                        value: crimeThreshold.Average
+                    , text: 'AVERAGE THRESHOLD'
+                    , class: 'average'
+                });
+            }
+            else {
+                chart.ygrids.remove({ class:'average'});
+            }
+        }
+
+        Date.prototype.addDays = function (days) {
+          var dat = new Date(this.valueOf());
+          dat.setDate(dat.getDate() + days);
+          return dat;
+        }
+
+        Date.prototype.subtractDays = function (days) {
+          var dat = new Date(this.valueOf());
+          dat.setDate(dat.getDate() - days);
+          return dat;
+        }
+    </script>
+    <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSMxi7rIRmoII_Bo_IoPmFyFtTfKASsr0&callback=initFusionMap"></script>
+
+    <!------------------------Script End-------------------------->
+
+
+    <!--src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSMxi7rIRmoII_Bo_IoPmFyFtTfKASsr0">-->
+{% endblock %}
