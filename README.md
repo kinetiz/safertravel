@@ -2,7 +2,7 @@
 
 This project is part of Foundation of Data Science from Univerisity of Southampton (2017-2018)
 
-This project aimed to develope a web app tool for airbnb travelers to explore risks in the Chicago area in term of place, date, time and also allow users to compare Airbnb location to find a safer place to stay when traveling.
+This project aimed to develop a web app tool for airbnb travelers to explore risks in the Chicago area in term of place, date, time and also allow users to compare Airbnb location to find a safer place to stay when traveling.
 
 This tool contains 2 main parts: 
 
