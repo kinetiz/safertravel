@@ -9,7 +9,7 @@ This tool contains 2 main parts:
 1) Analysis part - showing insights from visualisation developed from Tableau
 2) Prediction part - the predictor, developed from Scikit-learn with MLP model.
 
-The full detail can be found in the report.pdf
+The full detail can be found https://github.com/kinetiz/safertravel/blob/master/report.pdf
 
 # Analysis Part
 ![1](https://user-images.githubusercontent.com/29846375/42543986-7d2f52d2-84a6-11e8-9491-2faace5120b4.png)
